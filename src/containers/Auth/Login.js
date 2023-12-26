@@ -6,14 +6,16 @@ import * as actions from "../../store/actions";
 
 import './Login.scss';
 import { FormattedMessage } from 'react-intl';
+import { handleLoginService } from '../../services/userService';
 
 class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: 'tuankiet',
-            password: '12345',
-            isShowPassword: false
+            username: '',
+            password: '',
+            isShowPassword: false,
+            errMessage: ''
         }
     }
 
@@ -29,8 +31,32 @@ class Login extends Component {
         })
     }
 
-    handleLogin = () => {
-        alert('kiet');
+    handleLogin = async () => {
+        this.setState({
+            errMessage: ''
+        })
+        // console.log('test: ', this.state.username, '  pass: ', this.state.password)
+        try {
+            let data = await handleLoginService(this.state.username, this.state.password)
+            if (data && data.errCode !== 0) {
+                this.setState({
+                    errMessage: data.message
+                })
+            }
+            if (data && data.errCode === 0) {
+                this.props.userLoginSuccess(data.user);
+                console.log('login succeeds')
+            }
+        } catch (error) {
+            console.log('co loi: ', error);
+            if (error.response) {
+                if (error.response.data) {
+                    this.setState({
+                        errMessage: error.response.data.message
+                    })
+                }
+            }
+        }
     }
 
     showHidePassword = () => {
@@ -68,12 +94,15 @@ class Login extends Component {
                                     }} />
                                 <span onClick={() => { this.showHidePassword() }}>
                                     {this.state.isShowPassword ?
-                                        <i class="fas fa-eye"></i>
+                                        <i className="fas fa-eye"></i>
                                         :
-                                        <i class="fas fa-eye-slash"></i>
+                                        <i className="fas fa-eye-slash"></i>
                                     }
                                 </span>
                             </div>
+                        </div>
+                        <div className='col-12' style={{ color: 'red' }}>
+                            {this.state.errMessage}
                         </div>
                         <div className='col-12'>
                             <button className='btn-login' onClick={() => { this.handleLogin() }}>Login</button>
@@ -85,8 +114,8 @@ class Login extends Component {
                             <span className='text-other-login'>Or Login with:</span>
                         </div>
                         <div className='col-12 social-login'>
-                            <i class="fab fa-google-plus google"></i>
-                            <i class="fab fa-facebook facebook"></i>
+                            <i className="fab fa-google-plus google"></i>
+                            <i className="fab fa-facebook facebook"></i>
                         </div>
                     </div>
                 </div>
@@ -104,8 +133,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         navigate: (path) => dispatch(push(path)),
-        adminLoginSuccess: (adminInfo) => dispatch(actions.adminLoginSuccess(adminInfo)),
-        adminLoginFail: () => dispatch(actions.adminLoginFail()),
+        userLoginFail: () => dispatch(actions.userLoginFail()),
+        userLoginSuccess: (userInfo) => dispatch(actions.userLoginSuccess(userInfo))
     };
 };
 
