@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { handleGetAllUsers, handleCreateUser } from '../../services/userService';
+import { emitter } from "../../utils/emitter"
 class ModalUser extends Component {
     constructor(props) {
         super(props);
@@ -17,7 +18,25 @@ class ModalUser extends Component {
             image: '',
             roleId: '1',
             positionId: '',
-        }
+        };
+        this.listenToEmitter();
+    }
+
+    listenToEmitter() {
+        emitter.on('EVENT_CLEAR_MODAL_DATA', () => {
+            this.setState({
+                email: '',
+                password: '',
+                firstName: '',
+                lastName: '',
+                address: '',
+                phoneNumber: '',
+                gender: '1',
+                image: '',
+                roleId: '1',
+                positionId: '',
+            })
+        })
     }
 
     componentDidMount() {
@@ -57,6 +76,7 @@ class ModalUser extends Component {
     }
 
     render() {
+        console.log('check state: ', this.state);
         return (
             <Modal
                 isOpen={this.props.isOpen}
@@ -71,7 +91,7 @@ class ModalUser extends Component {
                             <div className="input-container">
                                 <label htmlFor="inputEmail">Email:</label>
                                 <input type="email" className="" placeholder="Email"
-                                    name={this.state.email}
+                                    value={this.state.email}
                                     onChange={(event) => {
                                         this.handleOnchangeInput(event, "email")
                                     }} />
@@ -79,7 +99,7 @@ class ModalUser extends Component {
                             <div className="input-container">
                                 <label htmlFor="inputPassword">Password:</label>
                                 <input type="password" className="" placeholder="Password"
-                                    name={this.state.password}
+                                    value={this.state.password}
                                     onChange={(event) => {
                                         this.handleOnchangeInput(event, "password")
                                     }} />
@@ -87,7 +107,7 @@ class ModalUser extends Component {
                             <div className="input-container">
                                 <label htmlFor="inputFirstName">First Name:</label>
                                 <input type="text" className="" placeholder="First Name"
-                                    name={this.state.firstName}
+                                    value={this.state.firstName}
                                     onChange={(event) => {
                                         this.handleOnchangeInput(event, "firstName")
                                     }} />
@@ -95,7 +115,7 @@ class ModalUser extends Component {
                             <div className="input-container">
                                 <label htmlFor="inputLastName">Last Name:</label>
                                 <input type="text" className="" placeholder="Last Name"
-                                    name={this.state.lastName}
+                                    value={this.state.lastName}
                                     onChange={(event) => {
                                         this.handleOnchangeInput(event, "lastName")
                                     }} />
@@ -103,7 +123,7 @@ class ModalUser extends Component {
                             <div className="input-container">
                                 <label htmlFor="inputAddress">Address:</label>
                                 <input type="text" className="" placeholder="1234 Main St"
-                                    name={this.state.address}
+                                    value={this.state.address}
                                     onChange={(event) => {
                                         this.handleOnchangeInput(event, "address")
                                     }} />
@@ -111,7 +131,7 @@ class ModalUser extends Component {
                             <div className="input-container">
                                 <label htmlFor="inputAddress">Phone Number:</label>
                                 <input type="text" className="" placeholder="Phone Number"
-                                    name={this.state.phoneNumber}
+                                    value={this.state.phoneNumber}
                                     onChange={(event) => {
                                         this.handleOnchangeInput(event, "phoneNumber")
                                     }} />
@@ -145,10 +165,10 @@ class ModalUser extends Component {
                     </div>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={() => { this.handleCreateUser(this.state) }}>
+                    <Button className='btn btn-primary px-2' color="primary" onClick={() => { this.handleCreateUser(this.state) }}>
                         Add
                     </Button>{' '}
-                    <Button color="secondary" onClick={() => { this.toggle() }}>
+                    <Button className='btn btn-primary px-2' color="secondary" onClick={() => { this.toggle() }}>
                         Cancel
                     </Button>
                 </ModalFooter>
