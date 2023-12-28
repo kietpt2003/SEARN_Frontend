@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { handleGetAllUsers, handleCreateUser } from '../../services/userService';
 class ModalUser extends Component {
     constructor(props) {
         super(props);
@@ -12,9 +13,9 @@ class ModalUser extends Component {
             lastName: '',
             address: '',
             phoneNumber: '',
-            gender: '',
+            gender: '1',
             image: '',
-            roleId: '',
+            roleId: '1',
             positionId: '',
         }
     }
@@ -24,6 +25,35 @@ class ModalUser extends Component {
 
     toggle = () => {
         this.props.handleOpenModal()
+    }
+
+    handleOnchangeInput = (event, id) => {
+        let copyState = { ...this.state }
+        copyState[id] = event.target.value;
+        this.setState({
+            ...copyState
+        })
+    }
+
+    checkValidateInput = async () => {
+        let isValid = true;
+        let arrInput = ['email', 'password', 'firstName', 'lastName', 'address', 'phoneNumber'];
+        for (let i = 0; i < arrInput.length; i++) {
+            if (!this.state[arrInput[i]]) {
+                isValid = false;
+                alert(`Missing parameter ${arrInput[i]}`);
+                break;
+            }
+        }
+        return isValid;
+    }
+
+    handleCreateUser = async (user) => {
+        let check = await this.checkValidateInput();
+        if (!check) {
+            return;
+        }
+        this.props.createUser(user);
     }
 
     render() {
@@ -43,9 +73,7 @@ class ModalUser extends Component {
                                 <input type="email" className="" placeholder="Email"
                                     name={this.state.email}
                                     onChange={(event) => {
-                                        this.setState({
-                                            email: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "email")
                                     }} />
                             </div>
                             <div className="input-container">
@@ -53,9 +81,7 @@ class ModalUser extends Component {
                                 <input type="password" className="" placeholder="Password"
                                     name={this.state.password}
                                     onChange={(event) => {
-                                        this.setState({
-                                            password: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "password")
                                     }} />
                             </div>
                             <div className="input-container">
@@ -63,9 +89,7 @@ class ModalUser extends Component {
                                 <input type="text" className="" placeholder="First Name"
                                     name={this.state.firstName}
                                     onChange={(event) => {
-                                        this.setState({
-                                            firstName: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "firstName")
                                     }} />
                             </div>
                             <div className="input-container">
@@ -73,9 +97,7 @@ class ModalUser extends Component {
                                 <input type="text" className="" placeholder="Last Name"
                                     name={this.state.lastName}
                                     onChange={(event) => {
-                                        this.setState({
-                                            lastName: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "lastName")
                                     }} />
                             </div>
                             <div className="input-container">
@@ -83,9 +105,7 @@ class ModalUser extends Component {
                                 <input type="text" className="" placeholder="1234 Main St"
                                     name={this.state.address}
                                     onChange={(event) => {
-                                        this.setState({
-                                            address: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "address")
                                     }} />
                             </div>
                             <div className="input-container">
@@ -93,9 +113,7 @@ class ModalUser extends Component {
                                 <input type="text" className="" placeholder="Phone Number"
                                     name={this.state.phoneNumber}
                                     onChange={(event) => {
-                                        this.setState({
-                                            phoneNumber: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "phoneNumber")
                                     }} />
                             </div>
                             <div className="input-container">
@@ -103,9 +121,7 @@ class ModalUser extends Component {
                                 <select name="gender"
                                     value={this.state.gender}
                                     onChange={(event) => {
-                                        this.setState({
-                                            gender: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "gender")
                                     }}
                                 >
                                     <option value="1">Male</option>
@@ -117,9 +133,7 @@ class ModalUser extends Component {
                                 <select name="roleId"
                                     value={this.state.roleId}
                                     onChange={(event) => {
-                                        this.setState({
-                                            roleId: event.target.value
-                                        })
+                                        this.handleOnchangeInput(event, "roleId")
                                     }}
                                 >
                                     <option value="1">Admin</option>
@@ -131,7 +145,7 @@ class ModalUser extends Component {
                     </div>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={() => { this.props.handleCreateUser(this.state) }}>
+                    <Button color="primary" onClick={() => { this.handleCreateUser(this.state) }}>
                         Add
                     </Button>{' '}
                     <Button color="secondary" onClick={() => { this.toggle() }}>

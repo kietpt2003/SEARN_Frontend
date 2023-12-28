@@ -14,23 +14,36 @@ class UserManage extends Component {
     }
 
     async componentDidMount() {
-        let response = await handleGetAllUsers('ALL');
-        if (response && response.errCode === 0) {
-            this.setState({
-                arrayUsers: response.users
-            })
-        }
-    }
-
-    handleCreateUser = async (user) => {
-        let response = await handleCreateUser(user);
-        return response;
+        await this.getAllUsers();
     }
 
     handleOpenModal = () => {
         this.setState({
             isOpen: !this.state.isOpen
         })
+    }
+
+    createUser = async (user) => {
+        try {
+            let response = await handleCreateUser(user);
+            if (response && response.errCode !== 0) {
+                alert(response.erMessage)
+            } else {
+                this.getAllUsers();
+                this.handleOpenModal();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllUsers = async () => {
+        let response = await handleGetAllUsers('ALL');
+        if (response && response.errCode === 0) {
+            this.setState({
+                arrayUsers: response.users,
+            })
+        }
     }
 
     render() {
@@ -75,7 +88,7 @@ class UserManage extends Component {
                         </tbody>
                     </table>
                 </div>
-                <ModalUser isOpen={this.state.isOpen} handleOpenModal={this.handleOpenModal} handleCreateUser={this.handleCreateUser} />
+                <ModalUser isOpen={this.state.isOpen} createUser={this.createUser} handleOpenModal={this.handleOpenModal} />
             </div>
         );
     }
