@@ -2,15 +2,29 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import './UserManagement.scss';
-import { handleGetAllUsers, handleCreateUser, handleDeleteUser } from '../../services/userService';
+import { handleGetAllUsers, handleCreateUser, handleDeleteUser, updateUser } from '../../services/userService';
 import ModalUser from './ModalUser';
 import { emitter } from "../../utils/emitter"
+import ModalEditUser from './ModalEditUser';
 class UserManage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             arrayUsers: [],
-            isOpen: false
+            isOpen: false,
+            isOpenModalEdit: false,
+            userEdit: {
+                id: '',
+                email: '',
+                firstName: '',
+                lastName: '',
+                address: '',
+                phoneNumber: '',
+                gender: '1',
+                image: '',
+                roleId: '1',
+                positionId: '',
+            }
         }
     }
 
@@ -21,6 +35,12 @@ class UserManage extends Component {
     handleOpenModal = () => {
         this.setState({
             isOpen: !this.state.isOpen
+        })
+    }
+
+    handleOpenEditModal = () => {
+        this.setState({
+            isOpenModalEdit: !this.state.isOpenModalEdit
         })
     }
 
@@ -53,6 +73,33 @@ class UserManage extends Component {
             let response = await handleDeleteUser(userId);
             if (response && response.errCode === 0) {
                 this.getAllUsers();
+            } else {
+                alert(response.errMessage);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    handleEditUser = async (user) => {
+        try {
+            this.handleOpenEditModal();
+            this.setState({
+                userEdit: user
+            }, () => {
+                // console.log('check:, ', this.state.userEdit);
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    handleSaveUser = async (user) => {
+        try {
+            let response = await updateUser(user);
+            if (response && response.errCode === 0) {
+                this.getAllUsers();
+                this.handleOpenEditModal();
             } else {
                 alert(response.errMessage);
             }
@@ -95,7 +142,7 @@ class UserManage extends Component {
                                         {user.address}
                                     </td>
                                     <td>
-                                        <button className="btn-edit"><i className="fas fa-pencil-alt"></i></button>
+                                        <button className="btn-edit" onClick={() => { this.handleEditUser(user) }}><i className="fas fa-pencil-alt"></i></button>
                                         <button className="btn-delete" onClick={() => { this.handleDelete(user.id) }}><i className="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
@@ -104,6 +151,10 @@ class UserManage extends Component {
                     </table>
                 </div>
                 <ModalUser isOpen={this.state.isOpen} createUser={this.createUser} handleOpenModal={this.handleOpenModal} />
+                {
+                    this.state.isOpenModalEdit &&
+                    <ModalEditUser isOpen={this.state.isOpenModalEdit} currentUser={this.state.userEdit} handleSaveUser={this.handleSaveUser} handleOpenEditModal={this.handleOpenEditModal} />
+                }
             </div>
         );
     }
