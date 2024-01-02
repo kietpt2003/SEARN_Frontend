@@ -35,6 +35,17 @@
                 height: 35px;
                 line-height: 35px;
                 text-transform: none;
+
+                &.active {
+                    a {
+                        color: #f7c22e;
+                    }
+                    background-color: #0071ba;
+                    &:hover {
+                        background-color: #0071ba;
+                    }
+                }
+
                 .menu-link {
                     text-decoration: none;
                     color: $text-in-light;
